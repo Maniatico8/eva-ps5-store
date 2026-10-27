@@ -1,69 +1,116 @@
 
 
+
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>EVA PS5 STORE - GENESIS BLUE</title>
-
+<title>EVA PS5 STORE V2</title>
 <style>
-
-body {
-
-  background:#07152c;
-
-  color:white;
-
-  font-family:Arial,sans-serif;
-
-  text-align:center;
-
-  padding:35px 15px;
-
-}
-
-h1 {color:#42adff}
-
-button {
-
-  background:#168bff;
-
-  color:white;
-
-  padding:16px 25px;
-
-  border:0;
-
-  border-radius:12px;
-
-  font-size:18px;
-
-}
-
+*{box-sizing:border-box}
+body{margin:0;background:#061326;color:#fff;font-family:Arial,sans-serif}
+header{padding:25px 18px;background:linear-gradient(130deg,#103d77,#081a35);border-bottom:2px solid #168cff}
+h1{color:#62bdff;margin:0;font-size:29px}
+small{color:#a9c4e4}
+main{padding:18px;max-width:1100px;margin:auto}
+input{width:100%;padding:15px;border:1px solid #37648e;border-radius:12px;background:#102944;color:white;font-size:16px}
+nav{display:flex;gap:8px;overflow:auto;padding:15px 0}
+button{background:#176bb6;color:white;border:0;padding:12px 15px;border-radius:10px;cursor:pointer}
+button.active{background:#36a4ff;color:#061326;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px}
+.card{background:#102b4b;border:1px solid #28537e;border-radius:15px;overflow:hidden}
+.cover{height:145px;display:grid;place-items:center;background:linear-gradient(140deg,#163d72,#07172c);font-size:62px}
+.info{padding:13px}
+.info h3{margin:0 0 8px;font-size:16px}
+.info p{color:#adc9e7;font-size:12px}
+.actions{display:flex;gap:6px}
+.actions button{flex:1;padding:9px 4px}
+.panel{margin:20px 0;padding:20px;background:#102b4b;border:1px solid #28537e;border-radius:15px}
+#details{white-space:pre-line;color:#c8e2ff}
+footer{text-align:center;padding:25px;color:#91acc8}
 </style>
-
 </head>
-
 <body>
-
+<header>
 <h1>🎮 EVA PS5 STORE</h1>
-
-<h2>GENESIS BLUE</h2>
-
-<p>iPhone · Android · PC · PS5</p>
-
-<button onclick="alert('EVA funciona!')">
-
-PROBAR EVA
-
-</button>
-
+<p>GENESIS BLUE · V2</p>
+<small>iPhone · Android · PC · PS5</small>
+</header>
+<main>
+<h2>Explorar catálogo</h2>
+<input id="search" placeholder="🔎 Buscar aplicaciones..." oninput="render()">
+<nav>
+<button onclick="filterBy('Todos')" class="active">Todos</button>
+<button onclick="filterBy('Homebrew')">Homebrew</button>
+<button onclick="filterBy('Herramientas')">Herramientas</button>
+<button onclick="filterBy('Multimedia')">Multimedia</button>
+<button onclick="filterBy('Favoritos')">❤️ Favoritos</button>
+</nav>
+<p id="count"></p>
+<div id="catalog" class="grid"></div>
+<section class="panel">
+<h2>📲 EVA PS5 Bridge</h2>
+<p>Estado: No conectado</p>
+<p>La instalación remota todavía no está implementada.</p>
+<button onclick="alert('EVA Bridge pendiente de desarrollo')">Ver estado</button>
+</section>
+<section class="panel">
+<h2>ℹ️ Información</h2>
+<p id="details">Selecciona una ficha del catálogo.</p>
+</section>
+</main>
+<footer>EVA PS5 STORE V2 · Genesis Blue</footer>
+<script>
+const apps=[
+{name:"Explorador EVA",cat:"Herramientas",icon:"📁",desc:"Concepto de explorador de archivos."},
+{name:"EVA Media",cat:"Multimedia",icon:"🎬",desc:"Concepto de reproductor multimedia."},
+{name:"EVA Homebrew Hub",cat:"Homebrew",icon:"🎮",desc:"Directorio demostrativo de homebrew."},
+{name:"EVA Network",cat:"Herramientas",icon:"🌐",desc:"Concepto de diagnóstico de red."},
+{name:"EVA Gallery",cat:"Multimedia",icon:"🖼️",desc:"Concepto de galería de imágenes."},
+{name:"EVA System",cat:"Herramientas",icon:"⚙️",desc:"Panel demostrativo de información."},
+{name:"EVA Audio",cat:"Multimedia",icon:"🎵",desc:"Concepto de biblioteca de música."},
+{name:"EVA Tools",cat:"Homebrew",icon:"🛠️",desc:"Herramientas de demostración."}
+];
+let category="Todos";
+let favorites=[];
+try{favorites=JSON.parse(localStorage.getItem("evaFavorites")||"[]")}catch(e){}
+function filterBy(c){
+category=c;
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.textContent.includes(c)));
+render();
+}
+function toggleFav(i){
+favorites=favorites.includes(i)?favorites.filter(x=>x!==i):[...favorites,i];
+try{localStorage.setItem("evaFavorites",JSON.stringify(favorites))}catch(e){}
+render();
+}
+function showDetails(i){
+let a=apps[i];
+document.getElementById("details").textContent=a.name+"\nCategoría: "+a.cat+"\n"+a.desc+"\n\nEntrada de demostración. No incluye descarga ni instalación.";
+}
+function render(){
+let q=document.getElementById("search").value.toLowerCase();
+let html="";
+let count=0;
+apps.forEach((a,i)=>{
+if(category!=="Todos"&&category!=="Favoritos"&&a.cat!==category)return;
+if(category==="Favoritos"&&!favorites.includes(i))return;
+if(!(a.name+" "+a.cat).toLowerCase().includes(q))return;
+count++;
+html+=`<article class="card">
+<div class="cover">${a.icon}</div>
+<div class="info"><h3>${a.name}</h3>
+<p>${a.cat} · Demo</p>
+<div class="actions">
+<button onclick="showDetails(${i})">Ver</button>
+<button onclick="toggleFav(${i})">${favorites.includes(i)?"❤️":"♡"}</button>
+</div></div></article>`;
+});
+document.getElementById("catalog").innerHTML=html||"<p>No hay resultados.</p>";
+document.getElementById("count").textContent=count+" aplicaciones de demostración";
+}
+render();
+</script>
 </body>
-
 </html>
